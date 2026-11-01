@@ -1,0 +1,16 @@
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Herramientas externas
+deno.exe
+ffmpeg/
+
+# Configuración personal
+config.json
+
+# Archivos de Windows
+desktop.ini
+Thumbs.db
