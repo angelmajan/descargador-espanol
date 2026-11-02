@@ -5,6 +5,7 @@ import json
 import yt_dlp
 import threading
 from queue import Queue, Empty
+import sys
 
 ventana = tk.Tk()
 ventana.title("Descargador de vídeos - Ángel Maján")
@@ -18,10 +19,22 @@ entrada_url = ttk.Entry(ventana)
 entrada_url.pack(padx=20, fill="x")
 entrada_url.focus_set()
 
-carpeta_programa = Path(__file__).resolve().parent
+# carpeta_programa = Path(__file__).resolve().parent
+# archivo_config = carpeta_programa / "config.json"
+# carpeta_inicial = carpeta_programa / "VIDEOS DESCARGADOS"
+# carpeta_ffmpeg = carpeta_programa / "ffmpegcarpeta_recursos = Path(__file__).resolve().parent
+
+carpeta_recursos = Path(__file__).resolve().parent
+
+if getattr(sys, "frozen", False):
+    carpeta_programa = Path(sys.executable).resolve().parent
+else:
+    carpeta_programa = carpeta_recursos
+
 archivo_config = carpeta_programa / "config.json"
 carpeta_inicial = carpeta_programa / "VIDEOS DESCARGADOS"
-carpeta_ffmpeg = carpeta_programa / "ffmpeg"
+carpeta_ffmpeg = carpeta_recursos / "ffmpeg"
+
 
 def cargar_carpeta():
     try:
@@ -80,7 +93,7 @@ def crear_opciones(carpeta):
         
         "js_runtimes": {
     "deno": {
-        "path": str(carpeta_programa / "deno.exe")
+        "path": str(carpeta_recursos / "deno.exe")
     }
 },
 

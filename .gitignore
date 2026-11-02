@@ -4,6 +4,10 @@ __pycache__/
 .venv/
 venv/
 
+# Carpetas generadas por PyInstaller
+/build/
+/dist/
+
 # Herramientas externas
 deno.exe
 ffmpeg/
