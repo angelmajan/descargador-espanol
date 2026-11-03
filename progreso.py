@@ -6,11 +6,53 @@ class PanelProgreso(ttk.Frame):
     def __init__(self, contenedor):
         super().__init__(contenedor)
 
+
+#Estilo personalizado para la barra de progreso
+        estilo = ttk.Style(self)
+
+        estilo.element_create(
+            "Angel.Progressbar.trough",
+            "from", "clam", "Horizontal.Progressbar.trough"
+        )
+        estilo.element_create(
+            "Angel.Progressbar.pbar",
+            "from", "clam", "Horizontal.Progressbar.pbar"
+        )
+
+        estilo.layout(
+            "Angel.Horizontal.TProgressbar",
+            [
+                (
+                    "Angel.Progressbar.trough",
+                    {
+                        "sticky": "nswe",
+                        "children": [
+                            (
+                                "Angel.Progressbar.pbar",
+                                {"side": "left", "sticky": "ns"}
+                            )
+                        ]
+                    }
+                )
+            ]
+        )
+
+        estilo.configure(
+            "Angel.Horizontal.TProgressbar",
+            background="#FF00FF",
+            lightcolor="#FF00FF",
+            darkcolor="#FF00FF",
+            troughcolor="#E6E6E6",
+            bordercolor="#B5B5B5"
+        )
+#-------------------------------------
+
         self.porcentaje = tk.DoubleVar(value=0)
         self.estado = tk.StringVar(value="Listo para descargar")
 
         self.barra = ttk.Progressbar(
             self,
+            style="Angel.Horizontal.TProgressbar", #Aplicar el estilo personalizado
             variable=self.porcentaje,
             maximum=100,
             mode="determinate"

@@ -7,9 +7,12 @@ import threading
 from queue import Queue, Empty
 import sys
 from progreso import PanelProgreso
+from acerca_de import mostrar_acerca_de
+from ventanas import centrar_ventana, aplicar_icono
 
 
 ventana = tk.Tk()
+aplicar_icono(ventana)
 ventana.title("Descargador de vídeos EN ESPAÑOL - By Ángel Maján")
 ventana.geometry("650x400")
 ventana.resizable(False, False)
@@ -288,5 +291,24 @@ panel_progreso = PanelProgreso(ventana)
 panel_progreso.pack(padx=20, pady=(0, 10), fill="x")
 # ---
 
+# Barra de menú
+barra_menu = tk.Menu(ventana)
+
+menu_ayuda = tk.Menu(barra_menu, tearoff=0)
+menu_ayuda.add_command(
+    label="Acerca de",
+    command=lambda: mostrar_acerca_de(ventana)
+)
+
+barra_menu.add_cascade(
+    label="Ayuda",
+    menu=menu_ayuda
+)
+
+ventana.config(menu=barra_menu)
+#---
+
+centrar_ventana(ventana)
+
 ventana.mainloop()
-#cambio 01 1.0.5
+#cambio 08 1.2.0

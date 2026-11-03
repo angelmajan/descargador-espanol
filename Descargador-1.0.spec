@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = []
+datas = [('icono_AM.ico', '.')]
 binaries = [('deno.exe', '.'), ('ffmpeg/ffmpeg.exe', 'ffmpeg'), ('ffmpeg/ffprobe.exe', 'ffmpeg')]
 hiddenimports = []
 tmp_ret = collect_all('yt_dlp')
@@ -31,6 +31,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name='Descargador-1.0',
+    icon='icono_AM.ico',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
