@@ -6,9 +6,11 @@ import yt_dlp
 import threading
 from queue import Queue, Empty
 import sys
+from progreso import PanelProgreso
+
 
 ventana = tk.Tk()
-ventana.title("Descargador de vídeos - Ángel Maján")
+ventana.title("Descargador de vídeos EN ESPAÑOL - By Ángel Maján")
 ventana.geometry("650x400")
 ventana.resizable(False, False)
 
@@ -104,25 +106,39 @@ def crear_opciones(carpeta):
         ),
         "merge_output_format": "mkv",
         "noplaylist": True,
+        "progress_hooks": [recibir_progreso],
+        "postprocessor_hooks": [recibir_posprocesado],
     }
 
 
-# def descargar():
-#     url = entrada_url.get().strip()
-
-#     if not url:
-#         messagebox.showwarning(
-#             "Falta el enlace",
-#             "Pega el enlace del vídeo antes de descargar."
-#         )
-#         return
-
-#     messagebox.showinfo(
-#         "Enlace recibido",
-#         f"El enlace que has introducido es:\n\n{url}"
-#     )
-
 resultados = Queue()
+
+def recibir_progreso(datos):
+    if datos["status"] != "downloading":
+        return
+
+    descargado = datos.get("downloaded_bytes", 0)
+    total = (
+        datos.get("total_bytes")
+        or datos.get("total_bytes_estimate")
+    )
+
+    if total:
+        porcentaje = descargado / total * 100
+    else:
+        porcentaje = None
+
+    resultados.put(("progreso", porcentaje))
+
+
+# Proceso de posprocesado (por ejemplo, cuando se está uniendo el vídeo y el audio)
+def recibir_posprocesado(datos):
+    if (
+        datos.get("postprocessor") == "Merger"
+        and datos.get("status") == "started"
+    ):
+        resultados.put(("uniendo", None))
+# ---
 
 
 def realizar_descarga(url, carpeta):
@@ -144,29 +160,63 @@ def realizar_descarga(url, carpeta):
 
 
 def comprobar_resultado():
-    try:
-        estado, mensaje = resultados.get_nowait()
+    while True:
+        try:
+            estado, mensaje = resultados.get_nowait()
 
-    except Empty:
-        ventana.after(200, comprobar_resultado)
+        except Empty:
+            break
+
+        if estado == "progreso":
+            if mensaje is None:
+                panel_progreso.actualizar(
+                    "Descargando: tamaño desconocido"
+                )
+            else:
+                panel_progreso.actualizar(
+                    "Descargando",
+                    mensaje
+                )
+
+            continue
+
+        if estado == "uniendo":
+            panel_progreso.actualizar(
+                "Uniendo vídeo y audio",
+                100
+            )
+
+            continue
+
+
+        boton_descargar.config(
+            state="normal",
+            text="Descargar"
+        )
+        boton_carpeta.config(state="normal")
+        entrada_url.config(state="normal")
+
+        if estado == "correcto":
+            panel_progreso.actualizar("Completado", 100)
+
+            messagebox.showinfo(
+                "Descarga completada",
+                f"El vídeo está guardado en:\n\n{mensaje}",
+                parent=ventana
+            )
+        else:
+            panel_progreso.actualizar("Error de descarga")
+
+            messagebox.showerror(
+                "Error de descarga",
+                mensaje,
+                parent=ventana
+            )
+
         return
 
-    boton_descargar.config(state="normal", text="Descargar")
-    boton_carpeta.config(state="normal")
-    entrada_url.config(state="normal")
+    ventana.after(200, comprobar_resultado)
 
-    if estado == "correcto":
-        messagebox.showinfo(
-            "Descarga completada",
-            f"El vídeo está guardado en:\n\n{mensaje}",
-            parent=ventana
-        )
-    else:
-        messagebox.showerror(
-            "Error de descarga",
-            mensaje,
-            parent=ventana
-        )
 
 
 def descargar():
@@ -190,6 +240,7 @@ def descargar():
             return
 
     carpeta = carpeta_destino.get()
+    panel_progreso.actualizar("Preparando", 0)
 
     boton_descargar.config(state="disabled", text="Descargando...")
     boton_carpeta.config(state="disabled")
@@ -231,6 +282,11 @@ boton_descargar = ttk.Button(
     command=descargar
 )
 boton_descargar.pack(pady=20)
+
+# Panel de progreso traido desde progreso.py
+panel_progreso = PanelProgreso(ventana)
+panel_progreso.pack(padx=20, pady=(0, 10), fill="x")
+# ---
 
 ventana.mainloop()
 #cambio 01 1.0.5
